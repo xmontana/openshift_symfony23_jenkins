@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Set pear repo to auto discover
+pear config-set auto_discover 1 >| /dev/null
+
+# Remove and install qa tools (see http://jenkins-php.org/)
+# Yes this is a hack but pears @data_dir@ stuff kinda makes this a must sorry
+pear uninstall pear.phpqatools.org/phpqatools pear.phpunit.de/PHPUnit pear.phpunit.de/PHPUnit_SkeletonGenerator pear.pdepend.org/PHP_Depend pear.phpmd.org/PHP_PMD pear.phpunit.de/phpcpd pear.phpunit.de/phploc pear.phpqatools.org/PHP_CodeBrowser pear.php.net/PHP_CodeSniffer pear.phpunit.de/File_Iterator pear.phpunit.de/FinderFacade pear.phpunit.de/PHPUnit_MockObject pear.phpunit.de/PHP_CodeCoverage pear.phpunit.de/PHP_Timer pear.phpunit.de/PHP_TokenStream pear.phpunit.de/Text_Template pear.netpirates.net/phpDox
+pear install pear.phpqatools.org/phpqatools
+pear install theseer/Autoload
+pear install channel://nikic.github.com/pear/PHPParser-0.9.3
+pear install pear.netpirates.net/phpDox-0.5.0
+
+
+# create proxy to pear commands
+if [ ! -d $OPENSHIFT_DATA_DIR/pear_proxy ]; then
+    mkdir $OPENSHIFT_DATA_DIR/pear_proxy
+fi
+ls -p $OPENSHIFT_HOMEDIR/php/phplib/pear/pear | grep -v / | while read target; do echo -e '#!/usr/bin/php' "\n" '<?php ini_set("include_path",ini_get("include_path").":".getenv("OPENSHIFT_HOMEDIR")."/php/phplib/pear/pear/php/:"); require getenv("OPENSHIFT_HOMEDIR")."/php/phplib/pear/pear/'$target'"; ?>' > $OPENSHIFT_DATA_DIR/pear_proxy/$(basename "$target"); chmod +x $OPENSHIFT_DATA_DIR/pear_proxy/$(basename "$target") ; echo pear_proxy/$(basename "$target") ; done

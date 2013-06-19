@@ -1,0 +1,21 @@
+# -- Symfony2 -----------------------------------------
+app/bootstrap.php.cache
+app/bootstrap_cache.php.cache
+app/config/parameters.ini
+app/config/parameters.yml
+composer.phar
+app/cache/*
+app/logs/*
+vendor/*
+php/bundles/*
+php/css/*
+php/js/*
+php/uploads/*
+.buildpath
+.project
+.settings
+nbproject/*
+.idea/*
+build/*
+app/build/*
+bin/*
