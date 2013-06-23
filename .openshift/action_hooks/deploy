@@ -1,7 +1,16 @@
 #!/bin/bash
+set -e
 
+export SYMFONY__MYSQL__HOST=$OPENSHIFT_MYSQL_DB_HOST
+export SYMFONY__MYSQL__PORT=$OPENSHIFT_MYSQL_DB_PORT
+export SYMFONY__MYSQL__NAME=$OPENSHIFT_APP_NAME
+export SYMFONY__MYSQL__USERNAME=$OPENSHIFT_MYSQL_DB_USERNAME
+export SYMFONY__MYSQL__PASSWORD=$OPENSHIFT_MYSQL_DB_PASSWORD
+
+TEMPLATE_DIR=${OPENSHIFT_REPO_DIR}/.openshift/tmpl
 # We don't need qa tools here
-pear uninstall pear.phpqatools.org/phpqatools pear.phpunit.de/PHPUnit pear.phpunit.de/PHPUnit_SkeletonGenerator pear.pdepend.org/PHP_Depend pear.phpmd.org/PHP_PMD pear.phpunit.de/phpcpd pear.phpunit.de/phploc pear.phpqatools.org/PHP_CodeBrowser pear.php.net/PHP_CodeSniffer pear.phpunit.de/File_Iterator pear.phpunit.de/FinderFacade pear.phpunit.de/PHPUnit_MockObject pear.phpunit.de/PHP_CodeCoverage pear.phpunit.de/PHP_Timer pear.phpunit.de/PHP_TokenStream pear.phpunit.de/Text_Template pear.netpirates.net/phpDox
+pear uninstall pear.phpqatools.org/phpqatools pear.phpunit.de/PHPUnit pear.phpunit.de/PHPUnit_SkeletonGenerator pear.pdepend.org/PHP_Depend pear.phpmd.org/PHP_PMD pear.phpunit.de/phpcpd pear.phpunit.de/phploc pear.phpqatools.org/PHP_CodeBrowser pear.php.net/PHP_CodeSniffer pear.phpunit.de/File_Iterator pear.phpunit.de/FinderFacade pear.phpunit.de/PHPUnit_MockObject pear.phpunit.de/PHP_CodeCoverage pear.phpunit.de/PHP_Timer pear.phpunit.de/PHP_TokenStream pear.phpunit.de/Text_Template pear.netpirates.net/phpDox nikic/PHPParser theseer/Autoload theseer/DirectoryScanner
+
 
 # Create cache dir if needed
 if [ ! -d $OPENSHIFT_REPO_DIR/app/cache ]; then
@@ -15,3 +24,13 @@ if [ ! -d $OPENSHIFT_REPO_DIR/app/logs ]; then
 fi
 chmod -v 777 $OPENSHIFT_REPO_DIR/app/logs
 
+if [ ! -d $OPENSHIFT_REPO_DIR/vendors ]; then
+     cd $OPENSHIFT_REPO_DIR
+     $OPENSHIFT_REPO_DIR/composer.phar install --no-interaction
+fi
+
+bash_profile=${OPENSHIFT_DATA_DIR}/.bash_profile
+if [[ ! -e  ${bash_profile} ]]; then
+    echo "Copy bash profile."
+    cp ${TEMPLATE_DIR}/bash_profile.tmpl ${bash_profile}
+fi
